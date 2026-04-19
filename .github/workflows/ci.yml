@@ -1,0 +1,32 @@
+name: CITLARA CI
+on: [push, pull_request]
+
+jobs:
+  test-rails:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: citlara
+          POSTGRES_PASSWORD: citlara
+          POSTGRES_DB: citlara_test
+        ports: ["5432:5432"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ruby/setup-ruby@v1
+        with:
+          bundler-cache: true
+      - run: bundle exec rails db:test:prepare
+      - run: bundle exec rspec --format progress
+      - run: bundle exec cucumber
+
+  test-python:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - run: pip install -r motor_linguistico/requirements.txt
+      - run: pytest motor_linguistico/tests/ -v
