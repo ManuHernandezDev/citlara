@@ -4,6 +4,9 @@ on: [push, pull_request]
 jobs:
   test-rails:
     runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://citlara:citlara@localhost:5432/citlara_test
     services:
       postgres:
         image: postgres:15
