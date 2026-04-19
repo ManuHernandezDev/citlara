@@ -4,6 +4,9 @@ on: [push, pull_request]
 jobs:
   test-rails:
     runs-on: ubuntu-latest
+    env:
+      RAILS_ENV: test
+      DATABASE_URL: postgres://citlara:citlara@localhost:5432/citlara_test
     services:
       postgres:
         image: postgres:15
@@ -12,12 +15,20 @@ jobs:
           POSTGRES_PASSWORD: citlara
           POSTGRES_DB: citlara_test
         ports: ["5432:5432"]
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
       - uses: actions/checkout@v4
       - uses: ruby/setup-ruby@v1
         with:
+          ruby-version: "3.2"
           bundler-cache: true
-      - run: bundle exec rails db:test:prepare
+      - name: Wait for PostgreSQL
+        run: sleep 5
+      - run: bundle exec rails db:create db:migrate
       - run: bundle exec rspec --format progress
       - run: bundle exec cucumber
 
@@ -28,5 +39,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - run: pip install -r motor_linguistico/requirements.txt
+      - run: |
+          pip install pytest
+          pip install -r motor_linguistico/requirements.txt
       - run: pytest motor_linguistico/tests/ -v
