@@ -17,7 +17,7 @@ jobs:
       - uses: ruby/setup-ruby@v1
         with:
           bundler-cache: true
-      - run: bundle exec rails db:test:prepare
+      # - run: bundle exec rails db:test:prepare
       - run: bundle exec rspec --format progress
       - run: bundle exec cucumber
 
@@ -28,5 +28,7 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: "3.11"
-      - run: pip install -r motor_linguistico/requirements.txt
+      - run: |
+          pip install pytest
+          pip install -r motor_linguistico/requirements.txt
       - run: pytest motor_linguistico/tests/ -v
