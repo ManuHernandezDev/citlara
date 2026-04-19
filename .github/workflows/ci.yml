@@ -28,7 +28,7 @@ jobs:
           bundler-cache: true
       - name: Wait for PostgreSQL
         run: sleep 5
-      - run: bundle exec rails db:test:prepare
+      - run: bundle exec rails db:create db:migrate
       - run: bundle exec rspec --format progress
       - run: bundle exec cucumber
 
